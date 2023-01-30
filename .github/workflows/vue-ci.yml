@@ -5,11 +5,10 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   build:
-
     runs-on: ubuntu-20.04
 
     strategy:
@@ -18,11 +17,41 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build --if-present
+
+      - name: Login to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: mrenaldyr
+          password: dckr_pat_lD3xf7mAmDNRCNBVGNO5hLtNtcQ
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: mrenaldyr/vue-docker:${{ github.run_number }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Deploy container with SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: 34.101.52.174
+          username: root
+          password: renaldy1234
+          port: 22
+          script: |
+            docker login -u mrenaldyr -p renaldy1234
+            docker pull mrenaldyr/vue-docker:${{ github.run_number }}
+            docker run -d -p 80:80 --name vue-docker mrenaldyr/vue-docker:${{ github.run_number }}
