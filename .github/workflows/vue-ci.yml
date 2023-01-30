@@ -53,5 +53,6 @@ jobs:
           port: 22
           script: |
             docker login -u mrenaldyr -p renaldy1234
+            docker rm -f vue-docker
             docker pull mrenaldyr/vue-docker:${{ github.run_number }}
             docker run -d -p 80:80 --name vue-docker mrenaldyr/vue-docker:${{ github.run_number }}
