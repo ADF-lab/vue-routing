@@ -5,6 +5,7 @@ import App from './App.vue';
 import TeamList from './components/teams/TeamsList.vue';
 import UserList from './components/users/UsersList.vue';
 import TeamMember from './components/teams/TeamMembers.vue';
+import AboutPage from './components/about/AboutPage.vue';
 
 const routes = createRouter({
   history: createWebHistory(),
@@ -29,6 +30,10 @@ const routes = createRouter({
     {
       path: '/users',
       component: UserList,
+    },
+    {
+      path: '/about',
+      component: AboutPage,
     },
     {
       path: '/:notFound(.*)',
